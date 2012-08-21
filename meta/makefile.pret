@@ -1,0 +1,8 @@
+# This file provides instructions for packaging.
+
+`MooseX-Interface`
+	perl_version_from m`MooseX::Interface`;
+	version_from      m`MooseX::Interface`;
+	readme_from       m`MooseX::Interface`;
+	test_requires     p`Test::More 0.61`  .
+
