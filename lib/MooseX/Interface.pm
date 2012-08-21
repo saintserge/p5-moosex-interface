@@ -259,6 +259,12 @@ good idea to use this yet.
 
 =back
 
+=begin private
+
+=item C<< init_meta >>
+
+=end private
+
 =head1 BUGS
 
 Please report any bugs to
