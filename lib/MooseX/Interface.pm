@@ -16,7 +16,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::VERSION   = '0.002';
+		$MooseX::Interface::VERSION   = '0.003';
 	
 		*requires = \&Moose::Role::requires;
 		*excludes = \&Moose::Role::excludes;
@@ -84,7 +84,7 @@ use Class::Load 0 ();
 	extends 'Moose::Meta::Method';
 	BEGIN {
 		$MooseX::Interface::Trait::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.002';
+		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.003';
 	}
 }
 
@@ -96,7 +96,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Role::VERSION   = '0.002';
+		$MooseX::Interface::Trait::Role::VERSION   = '0.003';
 	}
 
 	has is_interface => (
@@ -377,6 +377,8 @@ Please report any bugs to
 L<http://rt.cpan.org/Dist/Display.html?Queue=MooseX-Interface>.
 
 =head1 SEE ALSO
+
+L<MooseX::Interface::Tutorial>.
 
 L<Moose::Role>, L<MooseX::ABCD>.
 

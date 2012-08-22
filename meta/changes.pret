@@ -10,3 +10,10 @@
 		item "Make test cases work in pre-5.014 versions of Perl."^^Packaging;
 		item "Interfaces may now provide embedded test cases."^^Addition;
 	].
+
+`MooseX-Interface 0.003 cpan:TOBYINK`
+	issued  2012-08-22;
+	changeset [
+		item "Add MooseX::Interface::Tutorial."^^Documentation;
+		item "Check parent interface test cases too when testing implementations.";
+	].
