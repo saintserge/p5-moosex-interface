@@ -312,10 +312,12 @@ good idea to use this yet.
 
 =item C<< test_case { BLOCK } $name >>
 
-Experimental syntactic sugar for embedded test cases. The block will be
-called with an instance of a class claiming to implement the interface in
-C<< $_ >> and should return true if the instance passes the test and false
-if it fails.
+Experimental syntactic sugar for embedded test cases. This extends the idea
+that an interface is a contract for classes to fulfil.
+
+The block will be called with an instance of a class claiming to implement
+the interface in C<< $_ >> and should return true if the instance passes the
+test and false if it fails.
 
   package CalculatorAPI
   {
