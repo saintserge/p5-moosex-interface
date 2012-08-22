@@ -344,6 +344,10 @@ indicates success when evaluated in boolean context; indicates the number of
 failures in numeric context; and provides TAP-like "ok" or "not ok" in
 string context.
 
+Do not rely on test cases being run in any particular order, or maintaining
+any state between test cases. (Theoretically each test case could be run with
+a separate instance of the implementing class.)
+
 =back
 
 =begin private

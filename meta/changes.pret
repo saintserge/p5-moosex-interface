@@ -4,3 +4,9 @@
 	issued  2012-08-21;
 	label   "Initial release".
 
+`MooseX-Interface 0.002 cpan:TOBYINK`
+	issued  2012-08-22;
+	changeset [
+		item "Make test cases work in pre-5.014 versions of Perl."^^Packaging;
+		item "Interfaces may now provide embedded test cases."^^Addition;
+	].
