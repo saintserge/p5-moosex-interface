@@ -22,6 +22,11 @@ use Class::Load 0 ();
 		*excludes = \&Moose::Role::excludes;
 	}
 	
+	sub test_case (&;$)
+	{
+		Class::MOP::class_of( (scalar caller)[0] )->add_test_case(@_);
+	}
+	
 	sub const
 	{
 		my ($meta, $name, $value) = @_;
@@ -39,6 +44,7 @@ use Class::Load 0 ();
 
 	my ($import, $unimport) = Moose::Exporter->build_import_methods(
 		with_meta => [qw( extends excludes const requires )],
+		as_is     => [qw( test_case )],
 	);
 	
 	sub unimport
@@ -81,11 +87,19 @@ use Class::Load 0 ();
 {
 	package MooseX::Interface::Trait::Role;
 	use Moose::Role;
+	use Contextual::Return;
+	use namespace::clean;
 
-	has 'is_interface' => (
+	has is_interface => (
 		is      => 'rw',
 		isa     => 'Bool',
 		default => 0,
+	);
+	
+	has test_cases => (
+		is      => 'ro',
+		isa     => 'ArrayRef',
+		default => sub { [] },
 	);
 	
 	sub add_constant
@@ -98,6 +112,36 @@ use Class::Load 0 ();
 				package_name => $meta->name,
 			),
 		);
+	}
+	
+	sub add_test_case
+	{
+		my ($meta, $coderef, $name) = @_;
+		$name //= sprintf("Test case %d", @{ $meta->test_cases } + 1);
+		push @{ $meta->test_cases }, [$coderef, $name];
+	}
+	
+	sub test_implementation
+	{
+		my ($meta, $instance) = @_;
+		confess("Parameter is not an object that implements the interface; died")
+			unless blessed($instance) && $instance->DOES($meta->name);
+		
+		my @failed;
+		foreach my $case ( @{ $meta->test_cases } )
+		{
+			my ($code, $name) = @$case;
+			local $_ = $instance;
+			push @failed, $name unless $code->();
+		}
+		
+		return
+			LIST     { @failed }
+			BOOL     { @failed ? 0 : 1 }
+			NUM      { scalar @failed }
+			STR      { @failed ? 'not ok' : 'ok' }
+			ARRAYREF { \@failed }
+		;
 	}
 
 	sub find_problematic_methods
@@ -256,6 +300,49 @@ method signatures.
 
 Experimental syntactic sugar for declaring constants. It's probably not a
 good idea to use this yet.
+
+=item C<< test_case { BLOCK } $name >>
+
+Experimental syntactic sugar for embedded test cases. The block will be
+called with an instance of a class claiming to implement the interface in
+C<< $_ >> and should return true if the instance passes the test and false
+if it fails.
+
+  package CalculatorAPI
+  {
+    use MooseX::Interface;
+    
+    requires 'add';
+    test_case { $_->add(8, 2) == 10 };
+    
+    requires 'subtract';
+    test_case { $_->subtract(8, 2) == 6 };
+    
+    requires 'multiply';
+    test_case { $_->multiply(8, 2) == 16 };
+    
+    requires 'divide';
+    test_case { $_->divide(8, 2) == 4 };
+  }
+  
+  package Calculator
+  {
+    use Moose;
+    with 'CalculatorAPI';
+    sub add      { $_[1] + $_[2] }
+    sub subtract { $_[1] - $_[2] }
+    sub multiply { $_[1] * $_[2] }
+    sub divide   { $_[1] / $_[2] }
+  }
+  
+  my $result = CalculatorAPI->meta->test_implementation(
+    Calculator->new,
+  );
+
+The result of C<test_implementation> is a L<Contextual::Return> object which
+indicates success when evaluated in boolean context; indicates the number of
+failures in numeric context; and provides TAP-like "ok" or "not ok" in
+string context.
 
 =back
 

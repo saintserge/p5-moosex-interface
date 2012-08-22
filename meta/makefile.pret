@@ -4,5 +4,11 @@
 	perl_version_from m`MooseX::Interface`;
 	version_from      m`MooseX::Interface`;
 	readme_from       m`MooseX::Interface`;
-	test_requires     p`Test::More 0.61`  .
+	requires          p`B::Hooks::EndOfScope`;
+	requires          p`B::Hooks::Parser`;
+	requires          p`Class::Load`;
+	requires          p`Contextual::Return`;
+	requires          p`Moose 2.00`;
+	requires          p`namespace::clean 0.19`;
+	test_requires     p`Test::More 0.61`.
 
