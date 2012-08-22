@@ -16,7 +16,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::VERSION   = '0.001';
+		$MooseX::Interface::VERSION   = '0.002';
 	
 		*requires = \&Moose::Role::requires;
 		*excludes = \&Moose::Role::excludes;
@@ -82,6 +82,10 @@ use Class::Load 0 ();
 	package MooseX::Interface::Trait::Method::Constant;
 	use Moose;
 	extends 'Moose::Meta::Method';
+	BEGIN {
+		$MooseX::Interface::Trait::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.002';
+	}
 }
 
 {
@@ -89,6 +93,11 @@ use Class::Load 0 ();
 	use Moose::Role;
 	use Contextual::Return;
 	use namespace::clean;
+	
+	BEGIN {
+		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Trait::Role::VERSION   = '0.002';
+	}
 
 	has is_interface => (
 		is      => 'rw',
