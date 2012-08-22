@@ -126,7 +126,7 @@ use Class::Load 0 ();
 	sub add_test_case
 	{
 		my ($meta, $coderef, $name) = @_;
-		$name //= sprintf("Test case %d", @{ $meta->test_cases } + 1);
+		$name //= sprintf("%s test case %d", $meta->name, 1 + @{ $meta->test_cases });
 		push @{ $meta->test_cases }, [$coderef, $name];
 	}
 	
@@ -136,8 +136,12 @@ use Class::Load 0 ();
 		confess("Parameter is not an object that implements the interface; died")
 			unless blessed($instance) && $instance->DOES($meta->name);
 		
+		my @cases = map {
+			$_->can('test_cases') ? @{$_->test_cases} : ()
+		} $meta->calculate_all_roles;
 		my @failed;
-		foreach my $case ( @{ $meta->test_cases } )
+		
+		foreach my $case (@cases)
 		{
 			my ($code, $name) = @$case;
 			local $_ = $instance;
