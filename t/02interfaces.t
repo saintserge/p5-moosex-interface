@@ -1,13 +1,13 @@
 use Test::More tests => 4;
 
-package DatabaseAPI::ReadOnly
 {
+	package DatabaseAPI::ReadOnly;
 	use MooseX::Interface;
 	requires 'select';
 }
 
-package DatabaseAPI::ReadWrite
 {
+	package DatabaseAPI::ReadWrite;
 	use MooseX::Interface;
 	extends 'DatabaseAPI::ReadOnly';
 	requires 'insert';
@@ -15,14 +15,14 @@ package DatabaseAPI::ReadWrite
 	requires 'delete';
 }
 
-package Database::MySQL
 {
+	package Database::MySQL;
 	use Moose;
 	with 'DatabaseAPI::ReadWrite';
-	sub insert { ... }
-	sub select { ... }
-	sub update { ... }
-	sub delete { ... }
+	sub insert { 1 }
+	sub select { 1 }
+	sub update { 1 }
+	sub delete { 1 }
 }
 
 is_deeply(
