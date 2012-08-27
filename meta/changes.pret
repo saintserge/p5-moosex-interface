@@ -17,3 +17,9 @@
 		item "Add MooseX::Interface::Tutorial."^^Documentation;
 		item "Check parent interface test cases too when testing implementations.";
 	].
+
+`MooseX-Interface 0.004 cpan:TOBYINK`
+	issued  2012-08-27;
+	changeset [
+		item "Allow `requires` to be a passed method signatures for the required methods."^^Addition;
+	].
