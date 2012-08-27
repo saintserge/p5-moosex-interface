@@ -89,16 +89,68 @@ use Class::Load 0 ();
 }
 
 {
+	package MooseX::Interface::Trait::Method::Required;
+	use Moose;
+	extends 'Moose::Meta::Role::Method::Required';
+	BEGIN {
+		$MooseX::Interface::Trait::Method::Required::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Trait::Method::Required::VERSION   = '0.003';
+	}
+}
+
+{
+	package MooseX::Interface::Trait::Method::Required::WithSignature;
+	use Moose;
+	use Moose::Util::TypeConstraints ();
+	extends 'MooseX::Interface::Trait::Method::Required';
+	has signature => (
+		is       => 'ro',
+		isa      => 'ArrayRef',
+		required => 1,
+	);
+	sub check_signature
+	{
+		my ($meta, $args) = @_;
+		my $sig = $meta->signature;
+		
+		for my $i (0 .. $#{$sig})
+		{
+			my $tc = Moose::Util::TypeConstraints::find_type_constraint($sig->[$i]);
+			return 0 unless $tc->check($args->[$i]);
+		}
+		
+		return 1;
+	}
+	BEGIN {
+		$MooseX::Interface::Trait::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Trait::Method::Required::WithSignature::VERSION   = '0.003';
+	}
+}
+
+{
 	package MooseX::Interface::Trait::Role;
 	use Moose::Role;
 	use Contextual::Return;
 	use namespace::clean;
+	use overload ();
 	
 	BEGIN {
 		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
 		$MooseX::Interface::Trait::Role::VERSION   = '0.003';
 	}
 
+	requires qw(
+		name
+		calculate_all_roles
+		get_method_list
+		add_method
+		add_required_methods
+		get_after_method_modifiers_map
+		get_before_method_modifiers_map
+		get_around_method_modifiers_map
+		get_override_method_modifiers_map
+	);
+	
 	has is_interface => (
 		is      => 'rw',
 		isa     => 'Bool',
@@ -110,6 +162,41 @@ use Class::Load 0 ();
 		isa     => 'ArrayRef',
 		default => sub { [] },
 	);
+	
+	around add_required_methods => sub 
+	{
+		my $orig = shift;
+		my $meta = shift;
+		my @required;
+		
+		while (@_)
+		{
+			my $meth = shift;
+			my $sign = ( ref $_[0] or not defined $_[0] ) ? shift : undef;
+			push @required, $sign
+				? 'MooseX::Interface::Trait::Method::Required::WithSignature'->new(name => $meth, signature => $sign)
+				: 'MooseX::Interface::Trait::Method::Required'->new(name => $meth)
+		}
+		
+		foreach my $r (@required)
+		{
+			next unless $r->can('check_signature');
+			$meta->add_before_method_modifier(
+				$r->name,
+				sub {
+					my ($self, @args) = @_;
+					$r->check_signature(\@args) or die sprintf(
+						"method call '%s' on object %s did not conform to signature defined in interface %s",
+						$r->name,
+						overload::StrVal($self),
+						$meta->name,
+					);
+				},
+			);
+		}
+		
+		return $meta->$orig(@required);
+	};
 	
 	sub add_constant
 	{
@@ -186,7 +273,7 @@ use Class::Load 0 ();
 
 	sub check_interface_integrity
 	{
-		my $meta     = shift;
+		my $meta = shift;
 		
 		if (my @problems = $meta->find_problematic_methods)
 		{
@@ -306,8 +393,14 @@ this role.
 The name of a method (or attribute) that any classes implementing this
 interface I<must> provide.
 
-A future version of MooseX::Interface may provide a way to declare
-method signatures.
+=item C<< requires $method => \@signature >>
+
+Declares a signature for the given method. This effectively creates an
+C<around> method modifier for the method to check the signature.
+
+As an example:
+
+  requires log_message => [qw( Str )];
 
 =item C<< const $name => $value >>
 

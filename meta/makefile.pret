@@ -10,5 +10,6 @@
 	requires          p`Contextual::Return`;
 	requires          p`Moose 2.00`;
 	requires          p`namespace::clean 0.19`;
+	test_requires     p`Test::Exception`;
 	test_requires     p`Test::More 0.61`.
 
