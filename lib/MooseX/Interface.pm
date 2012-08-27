@@ -16,7 +16,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::VERSION   = '0.003';
+		$MooseX::Interface::VERSION   = '0.004';
 	
 		*requires = \&Moose::Role::requires;
 		*excludes = \&Moose::Role::excludes;
@@ -84,7 +84,7 @@ use Class::Load 0 ();
 	extends 'Moose::Meta::Method';
 	BEGIN {
 		$MooseX::Interface::Trait::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.003';
+		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.004';
 	}
 }
 
@@ -94,7 +94,7 @@ use Class::Load 0 ();
 	extends 'Moose::Meta::Role::Method::Required';
 	BEGIN {
 		$MooseX::Interface::Trait::Method::Required::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Required::VERSION   = '0.003';
+		$MooseX::Interface::Trait::Method::Required::VERSION   = '0.004';
 	}
 }
 
@@ -123,7 +123,7 @@ use Class::Load 0 ();
 	}
 	BEGIN {
 		$MooseX::Interface::Trait::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Required::WithSignature::VERSION   = '0.003';
+		$MooseX::Interface::Trait::Method::Required::WithSignature::VERSION   = '0.004';
 	}
 }
 
@@ -136,7 +136,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Role::VERSION   = '0.003';
+		$MooseX::Interface::Trait::Role::VERSION   = '0.004';
 	}
 
 	requires qw(
