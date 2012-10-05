@@ -4,7 +4,8 @@ use Test::Exception;
 {
 	package Local::Iface;
 	use MooseX::Interface;
-	requires add => [qw( Int Int )]
+	requires add => [qw( Int Int )];
+	one;
 }
 
 {

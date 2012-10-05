@@ -15,6 +15,8 @@ use Test::More;
 
 	requires 'divide';
 	test_case { $_->divide(8, 2) == 4 } 'divide-1';
+
+	one;
 }
 
 {
@@ -48,10 +50,10 @@ ok(
 {
 	package ScientificCalculatorAPI;	
 	use MooseX::Interface;
-	extends 'CalculatorAPI';
-	
+	extends 'CalculatorAPI';	
 	requires 'pow';
 	test_case { $_->pow(8, 2) == 64 } 'pow-1';
+	one;
 }
 
 {

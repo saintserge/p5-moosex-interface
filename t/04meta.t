@@ -6,6 +6,7 @@ use Test::Exception;
 	package LoggerAPI;
 	use MooseX::Interface;
 	requires log => ['Str'];
+	one;
 }
 
 {

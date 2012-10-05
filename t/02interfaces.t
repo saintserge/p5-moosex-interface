@@ -4,6 +4,7 @@ use Test::More tests => 4;
 	package DatabaseAPI::ReadOnly;
 	use MooseX::Interface;
 	requires 'select';
+	one;
 }
 
 {
@@ -13,6 +14,7 @@ use Test::More tests => 4;
 	requires 'insert';
 	requires 'update';
 	requires 'delete';
+	one;
 }
 
 {
