@@ -28,6 +28,7 @@
 	issued  2012-10-05;
 	changeset [
 		item "Replace B::Hooks::* usage with Hook::AfterRuntime."^^Change;
+		item "Include test case for method signatures."^^Packaging;
 		item "Replace Contextual::Return usage with a custom overloaded class."^^Change;
 		item "Test cases embedded within interfaces now have a better (albeit still undocumented) introspection API."^^Change;
 	].

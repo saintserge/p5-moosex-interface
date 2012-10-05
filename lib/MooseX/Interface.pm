@@ -461,6 +461,10 @@ As an example:
 
   requires log_message => [qw( Str )];
 
+If the C<log_message> method above were called with multiple arguments,
+then the additional arguments would be tolerated; the only check is that
+the first argument is a string.
+
 =item C<< const $name => $value >>
 
 Experimental syntactic sugar for declaring constants. It's probably not a
