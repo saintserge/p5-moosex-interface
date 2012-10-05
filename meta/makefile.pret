@@ -4,7 +4,6 @@
 	perl_version_from m`MooseX::Interface`;
 	version_from      m`MooseX::Interface`;
 	readme_from       m`MooseX::Interface`;
-	requires          p`Hook::AfterRuntime`;
 	requires          p`Class::Load`;
 	requires          p`Moose 2.00`;
 	requires          p`namespace::clean 0.19`;
