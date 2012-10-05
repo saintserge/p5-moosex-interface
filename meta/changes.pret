@@ -32,3 +32,12 @@
 		item "Replace Contextual::Return usage with a custom overloaded class."^^Change;
 		item "Test cases embedded within interfaces now have a better (albeit still undocumented) introspection API."^^Change;
 	].
+
+`MooseX-Interface 0.006 cpan:TOBYINK`
+	issued  2012-10-05;
+	changeset [
+		item "Drop Hook::AfterRuntime magic, and introduce 'one' function instead."^^Change;
+		item "Rename a bunch of internal classes."^^Change;
+		item "Clean up interface integrity checking code."^^Change;
+		item "Document internals."^^Documentation;
+	].
