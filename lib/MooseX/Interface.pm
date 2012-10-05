@@ -15,7 +15,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::VERSION   = '0.004';
+		$MooseX::Interface::VERSION   = '0.005';
 	
 		*requires = \&Moose::Role::requires;
 		*excludes = \&Moose::Role::excludes;
@@ -83,9 +83,10 @@ use Class::Load 0 ();
 	package MooseX::Interface::Trait::Method::Constant;
 	use Moose;
 	extends 'Moose::Meta::Method';
+	
 	BEGIN {
 		$MooseX::Interface::Trait::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.004';
+		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.005';
 	}
 }
 
@@ -93,9 +94,10 @@ use Class::Load 0 ();
 	package MooseX::Interface::Trait::Method::Required;
 	use Moose;
 	extends 'Moose::Meta::Role::Method::Required';
+	
 	BEGIN {
 		$MooseX::Interface::Trait::Method::Required::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Required::VERSION   = '0.004';
+		$MooseX::Interface::Trait::Method::Required::VERSION   = '0.005';
 	}
 }
 
@@ -104,11 +106,18 @@ use Class::Load 0 ();
 	use Moose;
 	use Moose::Util::TypeConstraints ();
 	extends 'MooseX::Interface::Trait::Method::Required';
+	
+	BEGIN {
+		$MooseX::Interface::Trait::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Trait::Method::Required::WithSignature::VERSION   = '0.005';
+	}
+	
 	has signature => (
 		is       => 'ro',
 		isa      => 'ArrayRef',
 		required => 1,
 	);
+	
 	sub check_signature
 	{
 		my ($meta, $args) = @_;
@@ -122,16 +131,17 @@ use Class::Load 0 ();
 		
 		return 1;
 	}
-	BEGIN {
-		$MooseX::Interface::Trait::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Required::WithSignature::VERSION   = '0.004';
-	}
 }
 
 {
 	package MooseX::Interface::ImplementationReport;
 	use Moose;
 	use namespace::clean;
+	
+	BEGIN {
+		$MooseX::Interface::ImplementationReport::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::ImplementationReport::VERSION   = '0.005';
+	}
 	
 	use overload
 		q[bool]  => sub { my $self = shift; !scalar(@{ $self->failed }) },
@@ -152,6 +162,11 @@ use Class::Load 0 ();
 	package MooseX::Interface::TestCase;
 	use Moose;
 	use namespace::clean;
+	
+	BEGIN {
+		$MooseX::Interface::TestCase::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::TestCase::VERSION   = '0.005';
+	}
 	
 	has name => (
 		is        => 'ro',
@@ -187,7 +202,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Role::VERSION   = '0.004';
+		$MooseX::Interface::Trait::Role::VERSION   = '0.005';
 	}
 
 	requires qw(
