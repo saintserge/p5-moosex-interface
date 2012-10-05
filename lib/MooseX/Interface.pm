@@ -7,8 +7,7 @@ use Moose::Role 2.00 ();
 use Moose::Util 0 ();
 use Moose::Util::MetaRole 0 ();
 use constant 1.01 ();
-use B::Hooks::EndOfScope 0 ();
-use B::Hooks::Parser 0 ();
+use Hook::AfterRuntime 0 ();
 use Class::Load 0 ();
 
 {
@@ -54,8 +53,10 @@ use Class::Load 0 ();
 	
 	sub import
 	{
-		my $OSE = '__PACKAGE__->meta->check_interface_integrity';
-		B::Hooks::Parser::inject("; B::Hooks::EndOfScope::on_scope_end { $OSE };");
+		my $caller = caller;
+		Hook::AfterRuntime::after_runtime {
+			$caller->meta->check_interface_integrity;
+		};
 		goto $import;
 	}
 
@@ -128,9 +129,59 @@ use Class::Load 0 ();
 }
 
 {
+	package MooseX::Interface::ImplementationReport;
+	use Moose;
+	use namespace::clean;
+	
+	use overload
+		q[bool]  => sub { my $self = shift; !scalar(@{ $self->failed }) },
+		q[0+]    => sub { my $self = shift;  scalar(@{ $self->failed }) },
+		q[""]    => sub { my $self = shift;  scalar(@{ $self->failed }) ? 'not ok' : 'ok' },
+		q[@{}]   => sub { my $self = shift;            $self->failed    },
+		fallback => 1,
+	;
+	
+	has [qw/ passed failed /] => (
+		is        => 'ro',
+		isa       => 'ArrayRef',
+		required  => 1,
+	);
+}
+
+{
+	package MooseX::Interface::TestCase;
+	use Moose;
+	use namespace::clean;
+	
+	has name => (
+		is        => 'ro',
+		isa       => 'Str',
+		required  => 1,
+	);
+	
+	has code => (
+		is        => 'ro',
+		isa       => 'CodeRef',
+		required  => 1,
+	);
+	
+	has associated_interface => (
+		is        => 'ro',
+		isa       => 'Object',
+		predicate => 'has_associated_interface',
+	);
+	
+	sub test_instance
+	{
+		my ($self, $instance) = @_;
+		local $_ = $instance;
+		$self->code->(@_);
+	}
+}
+
+{
 	package MooseX::Interface::Trait::Role;
 	use Moose::Role;
-	use Contextual::Return;
 	use namespace::clean;
 	use overload ();
 	
@@ -159,7 +210,7 @@ use Class::Load 0 ();
 	
 	has test_cases => (
 		is      => 'ro',
-		isa     => 'ArrayRef',
+		isa     => 'ArrayRef[MooseX::Interface::TestCase]',
 		default => sub { [] },
 	);
 	
@@ -213,8 +264,19 @@ use Class::Load 0 ();
 	sub add_test_case
 	{
 		my ($meta, $coderef, $name) = @_;
-		$name //= sprintf("%s test case %d", $meta->name, 1 + @{ $meta->test_cases });
-		push @{ $meta->test_cases }, [$coderef, $name];
+		if (blessed $coderef)
+		{
+			push @{ $meta->test_cases }, $coderef;
+		}
+		else
+		{
+			$name //= sprintf("%s test case %d", $meta->name, 1 + @{ $meta->test_cases });
+			push @{ $meta->test_cases }, 'MooseX::Interface::TestCase'->new(
+				name                 => $name,
+				code                 => $coderef,
+				associated_interface => $meta,
+			);
+		}
 	}
 	
 	sub test_implementation
@@ -226,22 +288,19 @@ use Class::Load 0 ();
 		my @cases = map {
 			$_->can('test_cases') ? @{$_->test_cases} : ()
 		} $meta->calculate_all_roles;
-		my @failed;
 		
+		my (@failed, @passed);
 		foreach my $case (@cases)
 		{
-			my ($code, $name) = @$case;
-			local $_ = $instance;
-			push @failed, $name unless $code->();
+			$case->test_instance($instance)
+				? push(@passed, $case)
+				: push(@failed, $case)
 		}
 		
-		return
-			LIST     { @failed }
-			BOOL     { @failed ? 0 : 1 }
-			NUM      { scalar @failed }
-			STR      { @failed ? 'not ok' : 'ok' }
-			ARRAYREF { \@failed }
-		;
+		return 'MooseX::Interface::ImplementationReport'->new(
+			failed => \@failed,
+			passed => \@passed,
+		);
 	}
 
 	sub find_problematic_methods
@@ -447,10 +506,12 @@ test and false if it fails.
     Calculator->new,
   );
 
-The result of C<test_implementation> is a L<Contextual::Return> object which
-indicates success when evaluated in boolean context; indicates the number of
+The result of C<test_implementation> is an overloaded object which indicates
+success when evaluated in boolean context; indicates the number of
 failures in numeric context; and provides TAP-like "ok" or "not ok" in
-string context.
+string context. You can call methods C<passed> and C<failed> on this object
+to return arrayrefs of failed test cases. Each test case is itself an
+object, with C<name>, C<code> and C<associated_interface> attributes.
 
 Do not rely on test cases being run in any particular order, or maintaining
 any state between test cases. (Theoretically each test case could be run with

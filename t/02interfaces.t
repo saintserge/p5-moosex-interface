@@ -46,4 +46,3 @@ ok(
 	Database::MySQL::->DOES('DatabaseAPI::ReadOnly'),
 	"DOES - indirect implementation",
 );
-

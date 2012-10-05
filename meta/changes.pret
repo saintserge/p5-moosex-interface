@@ -15,11 +15,19 @@
 	issued  2012-08-22;
 	changeset [
 		item "Add MooseX::Interface::Tutorial."^^Documentation;
-		item "Check parent interface test cases too when testing implementations.";
+		item "Check parent interface test cases too when testing implementations."^^Change;
 	].
 
 `MooseX-Interface 0.004 cpan:TOBYINK`
 	issued  2012-08-27;
 	changeset [
 		item "Allow `requires` to be a passed method signatures for the required methods."^^Addition;
+	].
+
+`MooseX-Interface 0.005 cpan:TOBYINK`
+	issued  2012-10-05;
+	changeset [
+		item "Replace B::Hooks::* usage with Hook::AfterRuntime."^^Change;
+		item "Replace Contextual::Return usage with a custom overloaded class."^^Change;
+		item "Test cases embedded within interfaces now have a better (albeit still undocumented) introspection API."^^Change;
 	].
