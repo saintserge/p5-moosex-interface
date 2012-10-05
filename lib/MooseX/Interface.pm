@@ -86,36 +86,36 @@ use Class::Load 0 ();
 }
 
 {
-	package MooseX::Interface::Trait::Method::Constant;
+	package MooseX::Interface::Meta::Method::Constant;
 	use Moose;
 	extends 'Moose::Meta::Method';
 	
 	BEGIN {
-		$MooseX::Interface::Trait::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Constant::VERSION   = '0.005';
+		$MooseX::Interface::Meta::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Meta::Method::Constant::VERSION   = '0.005';
 	}
 }
 
 {
-	package MooseX::Interface::Trait::Method::Required;
+	package MooseX::Interface::Meta::Method::Required;
 	use Moose;
 	extends 'Moose::Meta::Role::Method::Required';
 	
 	BEGIN {
-		$MooseX::Interface::Trait::Method::Required::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Required::VERSION   = '0.005';
+		$MooseX::Interface::Meta::Method::Required::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Meta::Method::Required::VERSION   = '0.005';
 	}
 }
 
 {
-	package MooseX::Interface::Trait::Method::Required::WithSignature;
+	package MooseX::Interface::Meta::Method::Required::WithSignature;
 	use Moose;
 	use Moose::Util::TypeConstraints ();
-	extends 'MooseX::Interface::Trait::Method::Required';
+	extends 'MooseX::Interface::Meta::Method::Required';
 	
 	BEGIN {
-		$MooseX::Interface::Trait::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Method::Required::WithSignature::VERSION   = '0.005';
+		$MooseX::Interface::Meta::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Meta::Method::Required::WithSignature::VERSION   = '0.005';
 	}
 	
 	has signature => (
@@ -140,13 +140,13 @@ use Class::Load 0 ();
 }
 
 {
-	package MooseX::Interface::ImplementationReport;
+	package MooseX::Interface::Meta::TestReport;
 	use Moose;
 	use namespace::clean;
 	
 	BEGIN {
-		$MooseX::Interface::ImplementationReport::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::ImplementationReport::VERSION   = '0.005';
+		$MooseX::Interface::Meta::TestReport::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Meta::TestReport::VERSION   = '0.005';
 	}
 	
 	use overload
@@ -165,13 +165,13 @@ use Class::Load 0 ();
 }
 
 {
-	package MooseX::Interface::TestCase;
+	package MooseX::Interface::Meta::TestCase;
 	use Moose;
 	use namespace::clean;
 	
 	BEGIN {
-		$MooseX::Interface::TestCase::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::TestCase::VERSION   = '0.005';
+		$MooseX::Interface::Meta::TestCase::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Meta::TestCase::VERSION   = '0.005';
 	}
 	
 	has name => (
@@ -231,7 +231,7 @@ use Class::Load 0 ();
 	
 	has test_cases => (
 		is      => 'ro',
-		isa     => 'ArrayRef[MooseX::Interface::TestCase]',
+		isa     => 'ArrayRef[MooseX::Interface::Meta::TestCase]',
 		default => sub { [] },
 	);
 	
@@ -259,8 +259,8 @@ use Class::Load 0 ();
 			my $meth = shift;
 			my $sign = ( ref $_[0] or not defined $_[0] ) ? shift : undef;
 			push @required, $sign
-				? 'MooseX::Interface::Trait::Method::Required::WithSignature'->new(name => $meth, signature => $sign)
-				: 'MooseX::Interface::Trait::Method::Required'->new(name => $meth)
+				? 'MooseX::Interface::Meta::Method::Required::WithSignature'->new(name => $meth, signature => $sign)
+				: 'MooseX::Interface::Meta::Method::Required'->new(name => $meth)
 		}
 		
 		foreach my $r (@required)
@@ -287,7 +287,7 @@ use Class::Load 0 ();
 	{
 		my ($meta, $name, $value) = @_;
 		$meta->add_method(
-			$name => 'MooseX::Interface::Trait::Method::Constant'->wrap(
+			$name => 'MooseX::Interface::Meta::Method::Constant'->wrap(
 				sub () { $value },
 				name         => $name,
 				package_name => $meta->name,
@@ -305,7 +305,7 @@ use Class::Load 0 ();
 		else
 		{
 			$name //= sprintf("%s test case %d", $meta->name, 1 + @{ $meta->test_cases });
-			push @{ $meta->test_cases }, 'MooseX::Interface::TestCase'->new(
+			push @{ $meta->test_cases }, 'MooseX::Interface::Meta::TestCase'->new(
 				name                 => $name,
 				code                 => $coderef,
 				associated_interface => $meta,
@@ -331,7 +331,7 @@ use Class::Load 0 ();
 				: push(@failed, $case)
 		}
 		
-		return 'MooseX::Interface::ImplementationReport'->new(
+		return 'MooseX::Interface::Meta::TestReport'->new(
 			failed => \@failed,
 			passed => \@passed,
 		);
@@ -356,7 +356,7 @@ use Class::Load 0 ();
 			next if $constant::declared{ $M->fully_qualified_name };
 			
 			# skip constants defined by MooseX::Interface
-			next if $M->isa('MooseX::Interface::Trait::Method::Constant');
+			next if $M->isa('MooseX::Interface::Meta::Method::Constant');
 			
 			push @problems, $m;
 		}
@@ -381,7 +381,11 @@ use Class::Load 0 ();
 			);
 		}
 		
-		foreach (qw( after around before override ))
+		# XXX
+		# We don't check 'before' modifiers because we have
+		# to install them ourselves to implement signatures.
+		# This can be made smarter.
+		foreach (qw( after around override ))
 		{
 			my $has = "get_${_}_method_modifiers_map";
 			if (keys %{ $meta->$has })
@@ -577,10 +581,6 @@ module.
 =item C<< init_meta >>
 
 =end private
-
-=head2 MooseX::Interface::Trait::Role
-
-This role is applied to your interface's metarole object.
 
 =head1 BUGS
 
