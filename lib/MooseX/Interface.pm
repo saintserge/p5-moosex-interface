@@ -14,7 +14,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::VERSION   = '0.005';
+		$MooseX::Interface::VERSION   = '0.006';
 		
 		*requires = \&Moose::Role::requires;
 		*excludes = \&Moose::Role::excludes;
@@ -92,7 +92,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::Method::Constant::VERSION   = '0.005';
+		$MooseX::Interface::Meta::Method::Constant::VERSION   = '0.006';
 	}
 }
 
@@ -103,7 +103,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::Method::Required::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::Method::Required::VERSION   = '0.005';
+		$MooseX::Interface::Meta::Method::Required::VERSION   = '0.006';
 	}
 }
 
@@ -115,7 +115,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::Method::Required::WithSignature::VERSION   = '0.005';
+		$MooseX::Interface::Meta::Method::Required::WithSignature::VERSION   = '0.006';
 	}
 	
 	has signature => (
@@ -146,7 +146,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::TestReport::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::TestReport::VERSION   = '0.005';
+		$MooseX::Interface::Meta::TestReport::VERSION   = '0.006';
 	}
 	
 	use overload
@@ -171,7 +171,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::TestCase::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::TestCase::VERSION   = '0.005';
+		$MooseX::Interface::Meta::TestCase::VERSION   = '0.006';
 	}
 	
 	has name => (
@@ -208,7 +208,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Role::VERSION   = '0.005';
+		$MooseX::Interface::Trait::Role::VERSION   = '0.006';
 	}
 	
 	requires qw(
@@ -599,6 +599,10 @@ C<one> will help you catch potential problems sooner. C<one> helpfully returns
 '1', so it can be used as the magical return value at the end of a Perl
 module.
 
+(Backwards compatibility note: in MooseX::Interface versions 0.005 and below,
+this was performed automatically using L<Hook::AfterRuntime>. From 0.006, the
+C<one> function was introduced instead.)
+
 =back
 
 =begin private
@@ -614,7 +618,8 @@ L<http://rt.cpan.org/Dist/Display.html?Queue=MooseX-Interface>.
 
 =head1 SEE ALSO
 
-L<MooseX::Interface::Tutorial>.
+L<MooseX::Interface::Tutorial>,
+L<MooseX::Interface::Internals>.
 
 L<Moose::Role>, L<MooseX::ABCD>.
 
