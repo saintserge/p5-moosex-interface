@@ -7,7 +7,6 @@ use Moose::Role 2.00 ();
 use Moose::Util 0 ();
 use Moose::Util::MetaRole 0 ();
 use constant 1.01 ();
-use Hook::AfterRuntime 0 ();
 use Class::Load 0 ();
 
 {
@@ -16,7 +15,7 @@ use Class::Load 0 ();
 	BEGIN {
 		$MooseX::Interface::AUTHORITY = 'cpan:TOBYINK';
 		$MooseX::Interface::VERSION   = '0.005';
-	
+		
 		*requires = \&Moose::Role::requires;
 		*excludes = \&Moose::Role::excludes;
 	}
@@ -40,9 +39,16 @@ use Class::Load 0 ();
 			unless $other->meta->can('is_interface') && $other->meta->is_interface;
 		Moose::Util::ensure_all_roles($meta->name, $other);
 	}
-
+	
+	sub one ()
+	{
+		my $meta = shift || Class::MOP::class_of( (scalar caller)[0] );
+		$meta->check_interface_integrity;
+		return 1;
+	}
+	
 	my ($import, $unimport) = Moose::Exporter->build_import_methods(
-		with_meta => [qw( extends excludes const requires )],
+		with_meta => [qw( extends excludes const requires one )],
 		as_is     => [qw( test_case )],
 	);
 	
@@ -53,10 +59,10 @@ use Class::Load 0 ();
 	
 	sub import
 	{
-		my $caller = caller;
-		Hook::AfterRuntime::after_runtime {
-			$caller->meta->check_interface_integrity;
-		};
+#		my $caller = caller;
+#		Hook::AfterRuntime::after_runtime {
+#			$caller->meta->check_interface_integrity;
+#		};
 		goto $import;
 	}
 
@@ -204,7 +210,7 @@ use Class::Load 0 ();
 		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
 		$MooseX::Interface::Trait::Role::VERSION   = '0.005';
 	}
-
+	
 	requires qw(
 		name
 		calculate_all_roles
@@ -228,6 +234,19 @@ use Class::Load 0 ();
 		isa     => 'ArrayRef[MooseX::Interface::TestCase]',
 		default => sub { [] },
 	);
+	
+	has integrity_checked => (
+		is      => 'rw',
+		isa     => 'Bool',
+		default => 0,
+	);
+	
+	before apply => sub
+	{
+		my $meta = shift;
+		$meta->check_interface_integrity
+			unless $meta->integrity_checked;
+	};
 	
 	around add_required_methods => sub 
 	{
@@ -317,7 +336,7 @@ use Class::Load 0 ();
 			passed => \@passed,
 		);
 	}
-
+	
 	sub find_problematic_methods
 	{
 		my $meta = shift;
@@ -335,7 +354,7 @@ use Class::Load 0 ();
 			
 			# skip constants defined by constant.pm
 			next if $constant::declared{ $M->fully_qualified_name };
-		
+			
 			# skip constants defined by MooseX::Interface
 			next if $M->isa('MooseX::Interface::Trait::Method::Constant');
 			
@@ -344,7 +363,7 @@ use Class::Load 0 ();
 		
 		return @problems;
 	}
-
+	
 	sub check_interface_integrity
 	{
 		my $meta = shift;
@@ -374,6 +393,8 @@ use Class::Load 0 ();
 				);
 			}
 		}
+		
+		$meta->integrity_checked(1);
 	}
 }
 
@@ -391,6 +412,7 @@ MooseX::Interface - Java-style interfaces for Moose
   {
     use MooseX::Interface;
     requires 'select';
+    one;
   }
   
   package DatabaseAPI::ReadWrite
@@ -400,6 +422,7 @@ MooseX::Interface - Java-style interfaces for Moose
     requires 'insert';
     requires 'update';
     requires 'delete';
+    one;
   }
   
   package Database::MySQL
@@ -536,6 +559,17 @@ Do not rely on test cases being run in any particular order, or maintaining
 any state between test cases. (Theoretically each test case could be run with
 a separate instance of the implementing class.)
 
+=over C<< one >>
+
+This function checks the integrity of your role, making sure it doesn't do
+anything that interfaces are not supposed to do, like defining methods.
+
+While you don't need to call this function at all, your interface's integrity
+will get checked anyway when classes implement the interface, so calling
+C<one> will help you catch potential problems sooner. C<one> helpfully returns
+'1', so it can be used as the magical return value at the end of a Perl
+module.
+
 =back
 
 =begin private
@@ -543,6 +577,10 @@ a separate instance of the implementing class.)
 =item C<< init_meta >>
 
 =end private
+
+=head2 MooseX::Interface::Trait::Role
+
+This role is applied to your interface's metarole object.
 
 =head1 BUGS
 
