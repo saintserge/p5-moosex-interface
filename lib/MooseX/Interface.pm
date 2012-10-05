@@ -588,7 +588,7 @@ Do not rely on test cases being run in any particular order, or maintaining
 any state between test cases. (Theoretically each test case could be run with
 a separate instance of the implementing class.)
 
-=over C<< one >>
+=item C<< one >>
 
 This function checks the integrity of your role, making sure it doesn't do
 anything that interfaces are not supposed to do, like defining methods.
