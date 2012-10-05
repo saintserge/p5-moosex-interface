@@ -30,6 +30,11 @@ yet. An explicit C<one> or C<< __PACKAGE__->meta->check_interface_integrity >>
 will happily check the interface integrity every single time, but when
 a class implements an interface, we don't want to have to keep rechecking.
 
+=item C<installed_modifiers>
+
+Hashref of sub name to refaddr pairs of all "before" method modifiers that
+have been set up to implement required method signature checks.
+
 =item C<< add_constant($name, $value) >>
 
 Define a constant.
@@ -50,11 +55,15 @@ Tests an instance of an implementation of the interface.
 Returns a list of L<Moose::Meta::Method> objects judged to be
 problematic to the integrity of the interface.
 
+=item C<< find_problematic_method_modifiers >>
+
+All method modifiers are problematic, except those that implement
+method signature checks.
+
 =item C<< check_interface_integrity >>
 
-Finds problematic methods, and croaks if there are any.
-
-Finds problematic method modifiers, and croaks if there are any.
+Calls C<find_problematic_methods> and C<find_problematic_method_modifiers>,
+and croaks if either of them return any problems.
 
 =back
 

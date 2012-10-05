@@ -241,6 +241,12 @@ use Class::Load 0 ();
 		default => 0,
 	);
 	
+	has installed_modifiers => (
+		is      => 'ro',
+		isa     => 'HashRef[Int]',
+		default => sub { +{} },
+	);
+	
 	before apply => sub
 	{
 		my $meta = shift;
@@ -266,18 +272,19 @@ use Class::Load 0 ();
 		foreach my $r (@required)
 		{
 			next unless $r->can('check_signature');
-			$meta->add_before_method_modifier(
-				$r->name,
-				sub {
-					my ($self, @args) = @_;
-					$r->check_signature(\@args) or die sprintf(
-						"method call '%s' on object %s did not conform to signature defined in interface %s",
-						$r->name,
-						overload::StrVal($self),
-						$meta->name,
-					);
-				},
-			);
+			
+			my $modifier = sub {
+				my ($self, @args) = @_;
+				$r->check_signature(\@args) or die sprintf(
+					"method call '%s' on object %s did not conform to signature defined in interface %s",
+					$r->name,
+					overload::StrVal($self),
+					$meta->name,
+				);
+			};
+			
+			$meta->installed_modifiers->{$r->name} = Scalar::Util::refaddr($modifier);
+			$meta->add_before_method_modifier($r->name, $modifier);
 		}
 		
 		return $meta->$orig(@required);
@@ -363,37 +370,55 @@ use Class::Load 0 ();
 		
 		return @problems;
 	}
-	
+
+	sub find_problematic_method_modifiers
+	{
+		my $meta = shift;
+		my @problems;
+		
+		foreach my $type (qw( after around before override ))
+		{
+			my $has = "get_${type}_method_modifiers_map";
+			my $map = $meta->$has;
+			foreach my $subname (sort keys %$map)
+			{
+				if (
+					$type eq 'before' &&
+					defined $meta->installed_modifiers->{$subname}
+				) {
+					# It would be nice to check the refaddr of the
+					# modifier was the one we created, but Moose
+					# seems to wrap it or something.
+					#
+					next;
+				}
+				push @problems, "$type($subname)";
+			}
+		}
+		
+		return @problems;
+	}
+
 	sub check_interface_integrity
 	{
 		my $meta = shift;
 		
-		if (my @problems = $meta->find_problematic_methods)
-		{
-			my $iface    = $meta->name;
-			my $s        = (@problems==1 ? '' : 's');
-			my $problems = join q[, ], sort @problems;
-			$problems =~ s/, ([^,]+)$/, and $1/;
-			
-			confess(
-				"Method$s defined within interface $iface ".
-				"(try Moose::Role instead): $problems; died"
-			);
-		}
+		my @checks = (
+			[ find_problematic_methods           => 'Method' ],
+			[ find_problematic_method_modifiers  => 'Method modifier' ],
+		);
 		
-		# XXX
-		# We don't check 'before' modifiers because we have
-		# to install them ourselves to implement signatures.
-		# This can be made smarter.
-		foreach (qw( after around override ))
+		while (my ($check_method, $check_text) = @{ +shift(@checks) || [] })
 		{
-			my $has = "get_${_}_method_modifiers_map";
-			if (keys %{ $meta->$has })
+			if (my @problems = $meta->$check_method)
 			{
 				my $iface    = $meta->name;
+				my $problems = Moose::Util::english_list(@problems);
+				my $s        = (@problems==1 ? '' : 's');
+				
 				confess(
-					"Method modifier defined within interface $iface ".
-					"(try Moose::Role instead); died"
+					"${check_text}${s} defined within interface ${iface} ".
+					"(try Moose::Role instead): ${problems}; died"
 				);
 			}
 		}
