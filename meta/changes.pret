@@ -41,3 +41,9 @@
 		item "Clean up interface integrity checking code."^^Change;
 		item "Document internals."^^Documentation;
 	].
+
+`MooseX-Interface 0.007 cpan:TOBYINK`
+	issued  2013-06-28;
+	changeset [
+		item "Drop usage of smartmatch."^^Update;
+	].

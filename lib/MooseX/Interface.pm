@@ -14,7 +14,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::VERSION   = '0.006';
+		$MooseX::Interface::VERSION   = '0.007';
 		
 		*requires = \&Moose::Role::requires;
 		*excludes = \&Moose::Role::excludes;
@@ -92,7 +92,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::Method::Constant::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::Method::Constant::VERSION   = '0.006';
+		$MooseX::Interface::Meta::Method::Constant::VERSION   = '0.007';
 	}
 }
 
@@ -103,7 +103,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::Method::Required::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::Method::Required::VERSION   = '0.006';
+		$MooseX::Interface::Meta::Method::Required::VERSION   = '0.007';
 	}
 }
 
@@ -115,7 +115,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::Method::Required::WithSignature::VERSION   = '0.006';
+		$MooseX::Interface::Meta::Method::Required::WithSignature::VERSION   = '0.007';
 	}
 	
 	has signature => (
@@ -146,7 +146,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::TestReport::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::TestReport::VERSION   = '0.006';
+		$MooseX::Interface::Meta::TestReport::VERSION   = '0.007';
 	}
 	
 	use overload
@@ -171,7 +171,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Meta::TestCase::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Meta::TestCase::VERSION   = '0.006';
+		$MooseX::Interface::Meta::TestCase::VERSION   = '0.007';
 	}
 	
 	has name => (
@@ -208,7 +208,7 @@ use Class::Load 0 ();
 	
 	BEGIN {
 		$MooseX::Interface::Trait::Role::AUTHORITY = 'cpan:TOBYINK';
-		$MooseX::Interface::Trait::Role::VERSION   = '0.006';
+		$MooseX::Interface::Trait::Role::VERSION   = '0.007';
 	}
 	
 	requires qw(
@@ -352,7 +352,7 @@ use Class::Load 0 ();
 		foreach my $m ($meta->get_method_list)
 		{
 			# These shouldn't show up anyway.
-			next if $m ~~ [qw(isa can DOES VERSION AUTHORITY)];
+			next if $m =~ qr(isa|can|DOES|VERSION|AUTHORITY);
 			
 			my $M = $meta->get_method($m);
 			
