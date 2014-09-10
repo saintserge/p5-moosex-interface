@@ -47,3 +47,10 @@
 	changeset [
 		item "Drop usage of smartmatch."^^Update;
 	].
+
+`MooseX-Interface 0.008 cpan:TOBYINK`
+	issued    2014-09-10;
+	changeset [
+		item "Switch to Dist::Inkt."^^Packaging;
+	].
+
