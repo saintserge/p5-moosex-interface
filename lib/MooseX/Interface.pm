@@ -108,6 +108,39 @@ use Class::Load 0 ();
 }
 
 {
+	package MooseX::Interface::Meta::Method::Required::WithNamedSignature;
+	use Moose;
+	use Moose::Util::TypeConstraints ();
+	extends 'MooseX::Interface::Meta::Method::Required';
+	
+	BEGIN {
+		$MooseX::Interface::Meta::Method::Required::WithSignature::AUTHORITY = 'cpan:TOBYINK';
+		$MooseX::Interface::Meta::Method::Required::WithSignature::VERSION   = '0.008';
+	}
+	
+	has signature => (
+		is       => 'ro',
+		isa      => 'ArrayRef',
+		required => 1,
+	);
+	
+	sub check_signature
+	{
+		my ($meta, $args) = @_;
+		my $sig = $meta->signature;
+		my %args = (@$args);
+		for my $i (0 .. $#{$sig})
+		{
+			if (  $sig->[$i] =~ /^(\w+)\[(\w+)]/ ) {
+				my $tc = Moose::Util::TypeConstraints::find_type_constraint($2);	
+			}
+			return 0 unless $tc->check($args{$1});
+		}
+		
+		return 1;
+	}
+}
+{
 	package MooseX::Interface::Meta::Method::Required::WithSignature;
 	use Moose;
 	use Moose::Util::TypeConstraints ();
