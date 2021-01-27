@@ -133,8 +133,10 @@ use Class::Load 0 ();
 		{
 			if (  $sig->[$i] =~ /^(\w+)\[(\w+)]/ ) {
 				my $tc = Moose::Util::TypeConstraints::find_type_constraint($2);	
+				return 0 unless $tc->check($args{$1});
+			} else {
+				return 0
 			}
-			return 0 unless $tc->check($args{$1});
 		}
 		
 		return 1;
