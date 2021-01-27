@@ -297,9 +297,14 @@ use Class::Load 0 ();
 		{
 			my $meth = shift;
 			my $sign = ( ref $_[0] or not defined $_[0] ) ? shift : undef;
-			push @required, $sign
+			if ( $sign && $sign->[0] eq '-named') {
+				shift @$sign;
+				push @required, 'MooseX::Interface::Meta::Method::Required::WithNamedSignature'->new(name => $meth, signature => $sign)
+			} else {
+				push @required, $sign
 				? 'MooseX::Interface::Meta::Method::Required::WithSignature'->new(name => $meth, signature => $sign)
 				: 'MooseX::Interface::Meta::Method::Required'->new(name => $meth)
+			}
 		}
 		
 		foreach my $r (@required)
